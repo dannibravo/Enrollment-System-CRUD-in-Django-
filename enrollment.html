@@ -1,0 +1,953 @@
+html
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>USTP Enrollment Management System</title>
+<script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+:root{
+  --blue:#1a3a8f;--blue-d:#0f2460;--blue-l:#2a52cc;--blue-xl:#e8eeff;
+  --gold:#f0b429;--gold-d:#c8941f;--gold-l:#fff8e6;
+  --white:#fff;--g50:#f8f9fb;--g100:#f0f2f7;--g200:#e2e6ef;
+  --g400:#94a3b8;--g600:#64748b;--g800:#1e293b;
+  --green:#22c55e;--red:#ef4444;
+  --r:10px;--rl:16px;--sh:0 2px 12px rgba(26,58,143,.10);--shl:0 8px 32px rgba(26,58,143,.15);
+}
+body{font-family:'Outfit',sans-serif;background:var(--g50);color:var(--g800);min-height:100vh;}
+::-webkit-scrollbar{width:5px;height:5px;}
+::-webkit-scrollbar-thumb{background:var(--blue-l);border-radius:3px;}
+::-webkit-scrollbar-track{background:var(--g100);}
+.shell{display:flex;min-height:100vh;}
+.sidebar{width:236px;background:var(--blue-d);color:#fff;display:flex;flex-direction:column;position:fixed;top:0;left:0;height:100vh;z-index:100;}
+.sb-logo{padding:18px 20px 12px;border-bottom:1px solid rgba(255,255,255,.1);}
+.sb-badge{background:var(--gold);color:var(--blue-d);font-weight:700;font-size:10px;padding:2px 8px;border-radius:4px;display:inline-block;margin-bottom:5px;letter-spacing:.5px;}
+.sb-title{font-size:14px;font-weight:700;color:#fff;line-height:1.3;}
+.sb-sub{font-size:10px;color:rgba(255,255,255,.45);margin-top:2px;}
+.sb-nav{flex:1;overflow-y:auto;padding:10px 0;}
+.nav-sec{padding:8px 16px 3px;font-size:9px;font-weight:600;color:rgba(255,255,255,.3);letter-spacing:1px;text-transform:uppercase;}
+.ni{display:flex;align-items:center;gap:9px;padding:9px 18px;cursor:pointer;color:rgba(255,255,255,.72);font-size:13px;transition:all .14s;border-left:3px solid transparent;position:relative;}
+.ni:hover{background:rgba(255,255,255,.07);color:#fff;}
+.ni.active{background:rgba(240,180,41,.15);color:var(--gold);border-left-color:var(--gold);}
+.ni svg{width:15px;height:15px;flex-shrink:0;}
+.ni .dot{position:absolute;right:14px;top:50%;transform:translateY(-50%);width:7px;height:7px;border-radius:50%;background:var(--gold);}
+.sb-foot{padding:12px 14px;border-top:1px solid rgba(255,255,255,.1);}
+.uchip{display:flex;align-items:center;gap:9px;}
+.av{width:30px;height:30px;border-radius:50%;background:var(--blue-xl);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:11px;color:var(--blue);flex-shrink:0;overflow:hidden;}
+.av img{width:100%;height:100%;object-fit:cover;border-radius:50%;}
+.uname{font-size:11px;font-weight:600;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.urole{font-size:10px;color:rgba(255,255,255,.4);}
+.lbtn{background:none;border:none;color:rgba(255,255,255,.45);cursor:pointer;padding:3px;border-radius:4px;}
+.lbtn:hover{color:var(--gold);}
+.main{margin-left:236px;flex:1;display:flex;flex-direction:column;min-width:0;}
+.topbar{background:#fff;border-bottom:1px solid var(--g200);padding:11px 26px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;}
+.tb-title{font-size:17px;font-weight:800;color:var(--blue-d);}
+.sy-tag{font-size:11px;background:var(--blue-xl);color:var(--blue-l);padding:3px 10px;border-radius:20px;font-weight:600;}
+.pc{padding:22px 26px;flex:1;}
+.card{background:#fff;border-radius:var(--rl);border:1px solid var(--g200);padding:18px 20px;box-shadow:var(--sh);}
+.card-stripe{height:4px;background:linear-gradient(90deg,var(--blue),var(--gold));border-radius:var(--rl) var(--rl) 0 0;margin:-18px -20px 14px;}
+.sgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:22px;}
+.scard{background:#fff;border-radius:var(--rl);border:1px solid var(--g200);padding:16px 18px;box-shadow:var(--sh);display:flex;align-items:center;gap:12px;cursor:pointer;transition:transform .15s;}
+.scard:hover{transform:translateY(-1px);}
+.sicon{width:42px;height:42px;border-radius:var(--r);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.sicon.b{background:var(--blue-xl);}
+.sicon.g{background:var(--gold-l);}
+.sicon.gr{background:#f0fdf4;}
+.sicon.r{background:#fef2f2;}
+.sval{font-size:22px;font-weight:800;color:var(--blue-d);line-height:1;}
+.slbl{font-size:11px;color:var(--g600);font-weight:500;margin-top:2px;}
+.btn{display:inline-flex;align-items:center;gap:5px;padding:7px 14px;border-radius:var(--r);font-size:13px;font-weight:600;cursor:pointer;border:none;transition:all .14s;font-family:'Outfit',sans-serif;}
+.btn-p{background:var(--blue);color:#fff;}
+.btn-p:hover{background:var(--blue-l);}
+.btn-g{background:var(--gold);color:var(--blue-d);}
+.btn-g:hover{background:var(--gold-d);color:#fff;}
+.btn-o{background:#fff;color:var(--blue);border:1.5px solid var(--blue);}
+.btn-o:hover{background:var(--blue-xl);}
+.btn-d{background:#fef2f2;color:var(--red);border:1px solid #fecaca;}
+.btn-d:hover{background:var(--red);color:#fff;}
+.btn-s{padding:5px 11px;font-size:12px;}
+.btn-xs{padding:3px 8px;font-size:11px;}
+.fg{margin-bottom:13px;}
+.fl{display:block;font-size:11px;font-weight:600;color:var(--g600);margin-bottom:4px;text-transform:uppercase;letter-spacing:.4px;}
+.fc{width:100%;padding:8px 12px;border:1.5px solid var(--g200);border-radius:var(--r);font-size:13px;font-family:'Outfit',sans-serif;color:var(--g800);background:#fff;transition:border-color .14s;outline:none;}
+.fc:focus{border-color:var(--blue-l);box-shadow:0 0 0 3px rgba(42,82,204,.09);}
+.fc:disabled,.fc[readonly]{background:var(--g100);color:var(--g600);cursor:not-allowed;}
+.fc.err{border-color:var(--red);}
+.ferr{font-size:11px;color:var(--red);margin-top:3px;}
+.fr2{display:grid;grid-template-columns:1fr 1fr;gap:13px;}
+.fr3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:13px;}
+.tw{overflow-x:auto;}
+table{width:100%;border-collapse:collapse;}
+th{font-size:10px;font-weight:700;color:var(--g600);text-transform:uppercase;letter-spacing:.5px;padding:9px 13px;background:var(--g50);border-bottom:2px solid var(--g200);text-align:left;white-space:nowrap;}
+td{padding:10px 13px;border-bottom:1px solid var(--g100);font-size:13px;color:var(--g800);vertical-align:middle;}
+tr:hover td{background:var(--g50);}
+.badge{display:inline-flex;align-items:center;padding:2px 9px;border-radius:20px;font-size:10px;font-weight:700;}
+.bb{background:var(--blue-xl);color:var(--blue);}
+.bg{background:var(--gold-l);color:var(--gold-d);}
+.bgr{background:#f0fdf4;color:#15803d;}
+.br{background:#fef2f2;color:#b91c1c;}
+.bgy{background:var(--g100);color:var(--g600);}
+.alert{padding:11px 14px;border-radius:var(--r);font-size:13px;margin-bottom:14px;display:flex;align-items:flex-start;gap:9px;}
+.alert svg{flex-shrink:0;margin-top:1px;}
+.al-s{background:#f0fdf4;border:1px solid #bbf7d0;color:#15803d;}
+.al-e{background:#fef2f2;border:1px solid #fecaca;color:#b91c1c;}
+.al-i{background:var(--blue-xl);border:1px solid #bfdbfe;color:var(--blue);}
+.al-w{background:#fffbeb;border:1px solid #fde68a;color:#92400e;}
+.auth-bg{min-height:100vh;background:linear-gradient(135deg,var(--blue-d) 0%,var(--blue) 55%,var(--blue-l) 100%);display:flex;align-items:center;justify-content:center;padding:20px;position:relative;overflow:hidden;}
+.auth-bg::before{content:'';position:absolute;width:600px;height:600px;border-radius:50%;background:rgba(240,180,41,.08);top:-200px;right:-200px;}
+.auth-bg::after{content:'';position:absolute;width:400px;height:400px;border-radius:50%;background:rgba(255,255,255,.04);bottom:-150px;left:-150px;}
+.auth-card{background:#fff;border-radius:20px;width:100%;max-width:410px;overflow:hidden;box-shadow:0 24px 64px rgba(0,0,0,.28);position:relative;z-index:1;}
+.auth-head{background:var(--blue-d);padding:26px 30px;text-align:center;}
+.auth-ring{width:60px;height:60px;border-radius:50%;background:rgba(240,180,41,.2);border:2px solid rgba(240,180,41,.35);display:flex;align-items:center;justify-content:center;margin:0 auto 10px;}
+.auth-inn{width:42px;height:42px;background:var(--gold);border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:15px;color:var(--blue-d);}
+.auth-body{padding:24px 28px;}
+.alink{color:var(--blue-l);cursor:pointer;font-weight:600;}
+.alink:hover{text-decoration:underline;}
+.land{min-height:100vh;background:var(--blue-d);}
+.land-nav{padding:14px 36px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid rgba(255,255,255,.08);}
+.land-hero{padding:70px 36px 60px;text-align:center;background:linear-gradient(135deg,var(--blue-d) 0%,var(--blue) 100%);position:relative;overflow:hidden;}
+.land-hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 70% 50%,rgba(240,180,41,.12) 0%,transparent 60%);}
+.hero-pill{display:inline-block;background:rgba(240,180,41,.2);border:1px solid rgba(240,180,41,.35);border-radius:20px;padding:4px 16px;color:var(--gold);font-size:11px;font-weight:600;margin-bottom:20px;}
+.wbanner{background:linear-gradient(135deg,var(--blue-d),var(--blue-l));border-radius:var(--rl);padding:22px 26px;color:#fff;margin-bottom:22px;display:flex;align-items:center;justify-content:space-between;overflow:hidden;position:relative;}
+.wbanner::after{content:'';position:absolute;right:-20px;top:-20px;width:140px;height:140px;border-radius:50%;background:rgba(255,255,255,.06);}
+.ann{border-left:4px solid var(--gold);background:var(--gold-l);border-radius:0 var(--r) var(--r) 0;padding:10px 14px;margin-bottom:9px;}
+.pbar{height:6px;background:var(--g100);border-radius:4px;overflow:hidden;margin-top:5px;}
+.pbar-fill{height:100%;background:linear-gradient(90deg,var(--blue),var(--blue-l));border-radius:4px;transition:width .3s;}
+.tabs{display:flex;gap:2px;background:var(--g100);border-radius:var(--r);padding:3px;margin-bottom:18px;width:fit-content;}
+.tab{padding:6px 14px;border-radius:8px;font-size:12px;font-weight:500;cursor:pointer;color:var(--g600);transition:all .14s;}
+.tab.act{background:#fff;color:var(--blue);font-weight:700;box-shadow:var(--sh);}
+.sec-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:12px;}
+.sec-opt{border:2px solid var(--g200);border-radius:var(--rl);padding:16px;cursor:pointer;transition:all .15s;}
+.sec-opt:hover{border-color:var(--blue-l);background:var(--blue-xl);}
+.sec-opt.sel{border-color:var(--blue);background:var(--blue-xl);}
+.subj-c{background:#fff;border-radius:var(--rl);border:1px solid var(--g200);padding:14px 16px;margin-bottom:10px;box-shadow:var(--sh);display:flex;gap:12px;}
+.mo{position:fixed;inset:0;background:rgba(0,0,0,.52);z-index:200;display:flex;align-items:center;justify-content:center;padding:20px;}
+.mc{background:#fff;border-radius:var(--rl);width:100%;max-width:520px;max-height:88vh;overflow-y:auto;box-shadow:0 24px 60px rgba(0,0,0,.3);}
+.mh{padding:18px 22px;border-bottom:1px solid var(--g200);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:#fff;z-index:1;}
+.mt{font-size:15px;font-weight:700;color:var(--blue-d);}
+.mb{padding:18px 22px;}
+.mf{padding:14px 22px;border-top:1px solid var(--g200);display:flex;justify-content:flex-end;gap:9px;}
+.xbtn{width:26px;height:26px;border-radius:6px;background:var(--g100);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--g600);}
+.ppw{position:relative;display:inline-block;}
+.ppl{width:84px;height:84px;border-radius:50%;border:3px solid var(--blue);object-fit:cover;}
+.ppe{position:absolute;bottom:0;right:0;width:24px;height:24px;background:var(--blue);border-radius:50%;border:2px solid #fff;display:flex;align-items:center;justify-content:center;cursor:pointer;color:#fff;}
+.lf-badge{position:absolute;right:10px;top:50%;transform:translateY(-50%);display:flex;align-items:center;gap:3px;font-size:9px;color:var(--g400);background:var(--g100);padding:2px 7px;border-radius:4px;pointer-events:none;}
+input[type=file]{display:none;}
+@keyframes slideIn{from{transform:translateY(10px);opacity:0}to{transform:translateY(0);opacity:1}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const {useState,useEffect,useRef} = React;
+
+const SEED={
+  students:[{id:1,email:'juan@ustp.edu',pw:'student123',fn:'Juan',ln:'Dela Cruz',mi:'P',sx:'Jr.',bd:'2003-05-12',addr:'123 Limketkai Drive, Cagayan de Oro City',ph:'09171234567',secId:1,pic:null,appDone:true,reqs:[]}],
+  admins:[{id:1,email:'admin@ustp.edu',pw:'admin123',name:'Administrator'}],
+  sections:[
+    {id:1,nm:'BSIT-1A',prog:'BS Information Technology',yr:1,slots:40,enrolled:28},
+    {id:2,nm:'BSIT-1B',prog:'BS Information Technology',yr:1,slots:40,enrolled:35},
+    {id:3,nm:'BSCS-1A',prog:'BS Computer Science',yr:1,slots:35,enrolled:22},
+    {id:4,nm:'BSIT-2A',prog:'BS Information Technology',yr:2,slots:40,enrolled:38},
+    {id:5,nm:'BSCE-1A',prog:'BS Computer Engineering',yr:1,slots:35,enrolled:18},
+  ],
+  subjects:[
+    {id:1,secId:1,nm:'Programming 1',units:3,days:'Mon & Wed',st:'8:00 AM',et:'10:00 AM',instId:1,room:'Room 101'},
+    {id:2,secId:1,nm:'Database Systems',units:3,days:'Tue & Thu',st:'1:00 PM',et:'3:00 PM',instId:2,room:'Room 203'},
+    {id:3,secId:1,nm:'Discrete Mathematics',units:3,days:'Mon & Fri',st:'10:00 AM',et:'12:00 PM',instId:3,room:'Room 305'},
+    {id:4,secId:1,nm:'Technical Communication',units:3,days:'Wednesday',st:'2:00 PM',et:'5:00 PM',instId:4,room:'Room 204'},
+    {id:5,secId:2,nm:'Programming 1',units:3,days:'Tue & Thu',st:'8:00 AM',et:'10:00 AM',instId:1,room:'Room 102'},
+    {id:6,secId:2,nm:'Database Systems',units:3,days:'Mon & Wed',st:'2:00 PM',et:'4:00 PM',instId:2,room:'Room 204'},
+    {id:7,secId:3,nm:'Calculus 1',units:5,days:'Mon & Wed & Fri',st:'7:00 AM',et:'9:00 AM',instId:3,room:'Room 401'},
+    {id:8,secId:4,nm:'Data Structures',units:3,days:'Tue & Thu',st:'9:00 AM',et:'11:00 AM',instId:1,room:'Room 201'},
+    {id:9,secId:5,nm:'Circuit Theory',units:4,days:'Mon & Wed',st:'1:00 PM',et:'3:00 PM',instId:4,room:'Room 502'},
+  ],
+  instructors:[
+    {id:1,nm:'Prof. John Cruz',email:'jcruz@ustp.edu',dept:'CCS',spec:'Programming'},
+    {id:2,nm:'Prof. Maria Santos',email:'msantos@ustp.edu',dept:'CCS',spec:'Database'},
+    {id:3,nm:'Prof. Roberto Reyes',email:'rreyes@ustp.edu',dept:'Mathematics',spec:'Discrete Math'},
+    {id:4,nm:'Prof. Ana Lim',email:'alim@ustp.edu',dept:'General Ed',spec:'Communication'},
+  ],
+  announcements:[
+    {id:1,title:'Enrollment for SY 2025–2026 is now OPEN',date:'May 10, 2026'},
+    {id:2,title:'Deadline of requirements submission: May 30, 2026',date:'May 12, 2026'},
+    {id:3,title:'New student orientation: June 5, 2026 at USTP Gymnasium',date:'May 14, 2026'},
+    {id:4,title:'Late enrollment fee applies after May 25, 2026',date:'May 15, 2026'},
+  ],
+};
+
+const STRIPE=['#1a3a8f','#f0b429','#10b981','#8b5cf6','#ef4444','#f97316'];
+
+// ── ICONS ──
+function Ico({n,s=15}){
+  const p={
+    home:"M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2zM9 22V12h6v10",
+    book:"M4 19.5A2.5 2.5 0 016.5 17H20M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z",
+    edit:"M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4z",
+    check:"M20 6L9 17l-5-5",
+    info:"M12 2a10 10 0 100 20A10 10 0 0012 2zM12 8v4M12 16h.01",
+    close:"M18 6L6 18M6 6l12 12",
+    lock:"M3 11a2 2 0 012-2h14a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2zM7 11V7a5 5 0 0110 0v4",
+    plus:"M12 5v14M5 12h14",
+    trash:"M3 6h18M8 6V4h8v2M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6M10 11v6M14 11v6",
+    logout:"M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9",
+    cal:"M3 4h18a2 2 0 012 2v14a2 2 0 01-2 2H3a2 2 0 01-2-2V6a2 2 0 012-2zM16 2v4M8 2v4M2 10h20",
+    user:"M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2M12 3a4 4 0 100 8 4 4 0 000-8z",
+    users:"M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2M9 3a4 4 0 100 8 4 4 0 000-8zM23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75",
+    grid:"M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3zM14 14h7v7h-7z",
+    msg:"M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z",
+    cam:"M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2zM12 9a4 4 0 100 8 4 4 0 000-8z",
+    doc:"M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8zM14 2v6h6M16 13H8M16 17H8M10 9H8",
+    search:"M21 21l-4.35-4.35M17 11A6 6 0 115 11a6 6 0 0112 0z",
+  };
+  return <svg width={s} height={s} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" style={{flexShrink:0}}>{(p[n]||'').split('M').filter(Boolean).map((d,i)=><path key={i} d={'M'+d}/>)}</svg>;
+}
+
+// ── HELPERS ──
+function Av({pic,init,size=30,gold=false}){
+  return <div className="av" style={{width:size,height:size,fontSize:size*.38,background:gold?'var(--gold)':'var(--blue-xl)',color:gold?'var(--blue-d)':'var(--blue)'}}>
+    {pic?<img src={pic} alt=""/>:init}
+  </div>;
+}
+
+function Toast({msg,type,onClose}){
+  useEffect(()=>{const t=setTimeout(onClose,3200);return()=>clearTimeout(t);},[]);
+  const c={success:{bg:'#f0fdf4',b:'#bbf7d0',col:'#15803d',ic:'check'},error:{bg:'#fef2f2',b:'#fecaca',col:'#b91c1c',ic:'close'},info:{bg:'var(--blue-xl)',b:'#bfdbfe',col:'var(--blue)',ic:'info'}}[type]||{bg:'var(--blue-xl)',b:'#bfdbfe',col:'var(--blue)',ic:'info'};
+  return <div style={{position:'fixed',bottom:22,right:22,background:c.bg,border:`1px solid ${c.b}`,color:c.col,borderRadius:10,padding:'11px 16px',fontSize:13,fontWeight:600,zIndex:9999,display:'flex',alignItems:'center',gap:8,boxShadow:'0 4px 20px rgba(0,0,0,.15)',maxWidth:300,animation:'slideIn .25s ease'}}>
+    <Ico n={c.ic} s={15}/><span style={{flex:1}}>{msg}</span>
+    <button onClick={onClose} style={{background:'none',border:'none',cursor:'pointer',color:c.col,opacity:.6,fontSize:18,lineHeight:1}}>×</button>
+  </div>;
+}
+
+function Modal({title,onClose,children,footer}){
+  return <div className="mo" onClick={e=>{if(e.target===e.currentTarget)onClose();}}>
+    <div className="mc">
+      <div className="mh"><span className="mt">{title}</span><button className="xbtn" onClick={onClose}><Ico n="close" s={13}/></button></div>
+      <div className="mb">{children}</div>
+      {footer&&<div className="mf">{footer}</div>}
+    </div>
+  </div>;
+}
+
+function Confirm({msg,onYes,onNo}){
+  return <div className="mo" onClick={e=>{if(e.target===e.currentTarget)onNo();}}>
+    <div className="mc" style={{maxWidth:360}}>
+      <div className="mh"><span className="mt">Confirm</span><button className="xbtn" onClick={onNo}><Ico n="close" s={13}/></button></div>
+      <div className="mb"><p style={{fontSize:14,color:'var(--g600)'}}>{msg}</p></div>
+      <div className="mf"><button className="btn btn-o" onClick={onNo}>Cancel</button><button className="btn btn-d" onClick={onYes}>Delete</button></div>
+    </div>
+  </div>;
+}
+
+// ── LANDING ──
+function Landing({onPortal}){
+  return <div className="land">
+    <div className="land-nav">
+      <div style={{display:'flex',alignItems:'center',gap:10}}>
+        <div style={{width:38,height:38,background:'var(--gold)',borderRadius:8,display:'flex',alignItems:'center',justifyContent:'center',fontWeight:900,fontSize:14,color:'var(--blue-d)'}}>U</div>
+        <div><div style={{color:'#fff',fontWeight:700,fontSize:13}}>USTP</div><div style={{color:'rgba(255,255,255,.45)',fontSize:10}}>Enrollment Management System</div></div>
+      </div>
+      <div style={{display:'flex',gap:9}}>
+        <button className="btn btn-o" style={{borderColor:'rgba(255,255,255,.35)',color:'#fff',background:'rgba(255,255,255,.08)'}} onClick={()=>onPortal('s-login')}>Student Login</button>
+        <button className="btn btn-g" onClick={()=>onPortal('a-login')}>Admin Portal</button>
+      </div>
+    </div>
+    <div className="land-hero">
+      <div className="hero-pill">✨ AY 2025–2026 Enrollment Now Open</div>
+      <h1 style={{fontSize:38,fontWeight:800,color:'#fff',lineHeight:1.2,marginBottom:14,position:'relative'}}>Welcome to the <span style={{color:'var(--gold)'}}>USTP</span><br/>Enrollment Portal</h1>
+      <p style={{fontSize:14,color:'rgba(255,255,255,.68)',maxWidth:480,margin:'0 auto 28px',position:'relative'}}>University of Science and Technology of Southern Philippines — your streamlined academic enrollment experience.</p>
+      <div style={{display:'flex',gap:12,justifyContent:'center',flexWrap:'wrap',position:'relative'}}>
+        <button className="btn btn-g" style={{padding:'11px 28px',fontSize:14}} onClick={()=>onPortal('s-login')}>🎓 Student Portal</button>
+        <button className="btn" style={{background:'rgba(255,255,255,.12)',color:'#fff',border:'1.5px solid rgba(255,255,255,.35)',padding:'11px 28px',fontSize:14}} onClick={()=>onPortal('a-login')}>⚙️ Admin Portal</button>
+      </div>
+    </div>
+    <div style={{padding:'44px 36px',background:'var(--g50)',display:'flex',gap:18,justifyContent:'center',flexWrap:'wrap'}}>
+      {[['📝','Easy Enrollment','Complete your academic enrollment in guided steps.'],['📅','View Schedule','Access your class schedule and instructor details.'],['🎓','Manage Records','Secure academic records management for everyone.'],['📣','Stay Updated','Get the latest announcements and reminders.']].map(([e,t,d],i)=><div key={i} style={{background:'#fff',borderRadius:'var(--rl)',padding:24,width:220,textAlign:'center',boxShadow:'var(--sh)'}}>
+        <div style={{fontSize:34,marginBottom:10}}>{e}</div>
+        <div style={{fontWeight:700,fontSize:13,color:'var(--blue-d)',marginBottom:5}}>{t}</div>
+        <div style={{fontSize:12,color:'var(--g600)',lineHeight:1.6}}>{d}</div>
+      </div>)}
+    </div>
+    <div style={{background:'var(--blue-d)',padding:'14px 36px',textAlign:'center',fontSize:11,color:'rgba(255,255,255,.35)'}}>© 2026 University of Science and Technology of Southern Philippines — EMS v2.0</div>
+  </div>;
+}
+
+// ── AUTH ──
+function AuthPage({mode,data,onData,onSuccess,onSwitch,onBack}){
+  const [f,setF]=useState({email:'',pw:'',cpw:'',fn:'',ln:''});
+  const [err,setErr]=useState('');
+  const isAdmin=mode==='a-login',isReg=mode==='s-reg';
+  const go=()=>{
+    setErr('');
+    if(!f.email||!f.pw){setErr('Email and password are required.');return;}
+    if(isReg){
+      if(!f.fn||!f.ln){setErr('Please enter your full name.');return;}
+      if(f.pw.length<6){setErr('Password must be at least 6 characters.');return;}
+      if(f.pw!==f.cpw){setErr('Passwords do not match.');return;}
+      if(!/\S+@\S+\.\S+/.test(f.email)){setErr('Invalid email format.');return;}
+      if(data.students.find(s=>s.email===f.email)){setErr('Email already registered.');return;}
+      const ns={id:Date.now(),email:f.email,pw:f.pw,fn:f.fn,ln:f.ln,mi:'',sx:'',bd:'',addr:'',ph:'',secId:null,pic:null,appDone:false,reqs:[]};
+      onData({...data,students:[...data.students,ns]});
+      onSuccess({role:'student',user:ns});return;
+    }
+    if(isAdmin){
+      const a=data.admins.find(x=>x.email===f.email&&x.pw===f.pw);
+      if(!a){setErr('Invalid admin credentials.');return;}
+      onSuccess({role:'admin',user:a});return;
+    }
+    const s=data.students.find(x=>x.email===f.email&&x.pw===f.pw);
+    if(!s){setErr('Incorrect email or password.');return;}
+    onSuccess({role:'student',user:s});
+  };
+  return <div className="auth-bg">
+    <div className="auth-card">
+      <div className="auth-head">
+        <div className="auth-ring"><div className="auth-inn">U</div></div>
+        <div style={{color:'#fff',fontSize:17,fontWeight:700}}>{isAdmin?'Admin Portal':isReg?'Create Account':'Student Login'}</div>
+        <div style={{color:'rgba(255,255,255,.55)',fontSize:11,marginTop:3}}>University of Science and Technology of Southern Philippines</div>
+      </div>
+      <div className="auth-body">
+        {err&&<div className="alert al-e" style={{marginBottom:12}}><Ico n="info" s={14}/><span>{err}</span></div>}
+        {isReg&&<div className="fr2">
+          <div className="fg"><label className="fl">First Name</label><input className="fc" placeholder="Juan" value={f.fn} onChange={e=>setF({...f,fn:e.target.value})}/></div>
+          <div className="fg"><label className="fl">Last Name</label><input className="fc" placeholder="Dela Cruz" value={f.ln} onChange={e=>setF({...f,ln:e.target.value})}/></div>
+        </div>}
+        <div className="fg"><label className="fl">Email Address</label><input className="fc" type="email" placeholder={isAdmin?'admin@ustp.edu':'student@ustp.edu'} value={f.email} onChange={e=>setF({...f,email:e.target.value})}/></div>
+        <div className="fg"><label className="fl">Password</label><input className="fc" type="password" placeholder="••••••••" value={f.pw} onChange={e=>setF({...f,pw:e.target.value})}/></div>
+        {isReg&&<div className="fg"><label className="fl">Confirm Password</label><input className="fc" type="password" placeholder="••••••••" value={f.cpw} onChange={e=>setF({...f,cpw:e.target.value})}/></div>}
+        <button className="btn btn-p" style={{width:'100%',padding:'10px',fontSize:14,marginTop:2}} onClick={go}>{isAdmin?'Sign in as Admin':isReg?'Create Account':'Sign In'}</button>
+        {!isAdmin&&<div style={{textAlign:'center',marginTop:10,fontSize:12,color:'var(--g600)'}}>{isReg?<>Already have an account? <span className="alink" onClick={()=>onSwitch('s-login')}>Sign in</span></>:<>New student? <span className="alink" onClick={()=>onSwitch('s-reg')}>Register now</span></>}</div>}
+        <div style={{textAlign:'center',marginTop:8}}><span className="alink" style={{color:'var(--g400)',fontSize:11}} onClick={onBack}>← Back to Home</span></div>
+        {!isAdmin&&!isReg&&<div className="alert al-i" style={{marginTop:12,fontSize:11,padding:'8px 12px'}}><Ico n="info" s={13}/><div><strong>Demo:</strong> juan@ustp.edu / student123</div></div>}
+        {isAdmin&&<div className="alert al-i" style={{marginTop:12,fontSize:11,padding:'8px 12px'}}><Ico n="info" s={13}/><div><strong>Demo:</strong> admin@ustp.edu / admin123</div></div>}
+      </div>
+    </div>
+  </div>;
+}
+
+// ── APPLICATION FORM ──
+function AppForm({student,data,onData,onDone,showToast}){
+  const [f,setF]=useState({ln:student.ln||'',fn:student.fn||'',mi:student.mi||'',sx:student.sx||'',bd:student.bd||'',addr:student.addr||'',email:student.email||'',ph:student.ph||''});
+  const [errs,setErrs]=useState({});
+  const val=()=>{
+    const e={};
+    if(!f.ln.trim())e.ln='Required';
+    if(!f.fn.trim())e.fn='Required';
+    if(!f.bd)e.bd='Required';
+    if(!f.addr.trim())e.addr='Required';
+    if(!f.email||!/\S+@\S+\.\S+/.test(f.email))e.email='Valid email required';
+    if(!f.ph||!/^(09|\+639)\d{9}$/.test(f.ph.replace(/\s/g,'')))e.ph='Valid PH number (09XXXXXXXXX)';
+    setErrs(e);return Object.keys(e).length===0;
+  };
+  const sub=()=>{
+    if(!val())return;
+    const upd={...student,...f,appDone:true};
+    onData({...data,students:data.students.map(s=>s.id===student.id?upd:s)});
+    showToast('Application submitted successfully!','success');
+    onDone(upd);
+  };
+  const prev=f.ln?`${f.ln}, ${[f.fn,f.mi?f.mi+'.':'',f.sx].filter(Boolean).join(' ')}`.trim():'';
+  return <div style={{minHeight:'100vh',background:'var(--g50)',padding:28}}>
+    <div style={{maxWidth:680,margin:'0 auto'}}>
+      <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:22}}>
+        <div style={{width:42,height:42,background:'var(--blue)',borderRadius:10,display:'flex',alignItems:'center',justifyContent:'center',color:'#fff',fontWeight:900,fontSize:15}}>U</div>
+        <div><div style={{fontWeight:800,fontSize:16,color:'var(--blue-d)'}}>USTP Enrollment Application Form</div><div style={{fontSize:12,color:'var(--g600)'}}>Step 1 of 3 — Personal Information</div></div>
+      </div>
+      <div style={{display:'flex',alignItems:'center',marginBottom:22}}>
+        {['Personal Info','Section Selection','Dashboard'].map((s,i)=><React.Fragment key={i}>
+          {i>0&&<div style={{flex:1,height:2,background:'var(--g200)'}}/>}
+          <div style={{display:'flex',flexDirection:'column',alignItems:'center'}}>
+            <div style={{width:28,height:28,borderRadius:'50%',display:'flex',alignItems:'center',justifyContent:'center',fontSize:11,fontWeight:700,background:i===0?'var(--gold)':'var(--g200)',color:i===0?'var(--blue-d)':'var(--g600)'}}>{i+1}</div>
+            <div style={{fontSize:9,color:'var(--g600)',marginTop:3,whiteSpace:'nowrap'}}>{s}</div>
+          </div>
+        </React.Fragment>)}
+      </div>
+      <div className="card">
+        <div className="card-stripe"/>
+        <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start',marginBottom:14}}>
+          <div><div style={{fontWeight:700,fontSize:15,color:'var(--blue-d)'}}>Personal Information</div><div style={{fontSize:12,color:'var(--g600)',marginTop:2}}>All fields marked * are required</div></div>
+          {prev&&<div style={{textAlign:'right'}}><div style={{fontSize:10,color:'var(--g400)',marginBottom:2}}>Name preview</div><div style={{fontWeight:700,fontSize:13,color:'var(--blue-d)'}}>{prev}</div></div>}
+        </div>
+        <div className="fr3">
+          <div className="fg"><label className="fl">Last Name *</label><input className={`fc${errs.ln?' err':''}`} placeholder="Dela Cruz" value={f.ln} onChange={e=>setF({...f,ln:e.target.value})}/>{errs.ln&&<div className="ferr">{errs.ln}</div>}</div>
+          <div className="fg"><label className="fl">First Name *</label><input className={`fc${errs.fn?' err':''}`} placeholder="Juan" value={f.fn} onChange={e=>setF({...f,fn:e.target.value})}/>{errs.fn&&<div className="ferr">{errs.fn}</div>}</div>
+          <div className="fg"><label className="fl">Middle Initial</label><input className="fc" placeholder="P" maxLength={1} value={f.mi} onChange={e=>setF({...f,mi:e.target.value})}/></div>
+        </div>
+        <div className="fr2">
+          <div className="fg"><label className="fl">Suffix</label><select className="fc" value={f.sx} onChange={e=>setF({...f,sx:e.target.value})}><option value="">None</option><option>Jr.</option><option>Sr.</option><option>II</option><option>III</option><option>IV</option></select></div>
+          <div className="fg"><label className="fl">Birthdate *</label><input className={`fc${errs.bd?' err':''}`} type="date" value={f.bd} onChange={e=>setF({...f,bd:e.target.value})}/>{errs.bd&&<div className="ferr">{errs.bd}</div>}</div>
+        </div>
+        <div className="fg"><label className="fl">Complete Address *</label><textarea className={`fc${errs.addr?' err':''}`} rows={2} placeholder="House/Unit, Street, Barangay, City, Province" value={f.addr} onChange={e=>setF({...f,addr:e.target.value})} style={{resize:'vertical'}}/>{errs.addr&&<div className="ferr">{errs.addr}</div>}</div>
+        <div className="fr2">
+          <div className="fg"><label className="fl">Email Address *</label><input className={`fc${errs.email?' err':''}`} type="email" placeholder="juan@ustp.edu" value={f.email} onChange={e=>setF({...f,email:e.target.value})}/>{errs.email&&<div className="ferr">{errs.email}</div>}</div>
+          <div className="fg"><label className="fl">Phone Number *</label><input className={`fc${errs.ph?' err':''}`} placeholder="09171234567" value={f.ph} onChange={e=>setF({...f,ph:e.target.value})}/>{errs.ph&&<div className="ferr">{errs.ph}</div>}</div>
+        </div>
+        <div style={{display:'flex',justifyContent:'flex-end',marginTop:4}}>
+          <button className="btn btn-p" style={{padding:'9px 26px'}} onClick={sub}>Submit Application →</button>
+        </div>
+      </div>
+    </div>
+  </div>;
+}
+
+// ── SECTION SELECT ──
+function SecSelect({student,data,onData,onDone,showToast}){
+  const [sel,setSel]=useState(null);
+  const go=()=>{
+    if(!sel){showToast('Please select a section first.','error');return;}
+    const upd={...student,secId:sel};
+    onData({...data,students:data.students.map(s=>s.id===student.id?upd:s)});
+    showToast('Section enrolled successfully!','success');
+    onDone(upd);
+  };
+  return <div style={{minHeight:'100vh',background:'var(--g50)',padding:28}}>
+    <div style={{maxWidth:680,margin:'0 auto'}}>
+      <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:22}}>
+        <div style={{width:42,height:42,background:'var(--blue)',borderRadius:10,display:'flex',alignItems:'center',justifyContent:'center',color:'#fff',fontWeight:900,fontSize:15}}>U</div>
+        <div><div style={{fontWeight:800,fontSize:16,color:'var(--blue-d)'}}>Select Your Section</div><div style={{fontSize:12,color:'var(--g600)'}}>Step 2 of 3 — Choose your section</div></div>
+      </div>
+      <div className="alert al-i" style={{marginBottom:18}}><Ico n="info" s={15}/><span>You can only enroll in one section. Contact the admin to change it later.</span></div>
+      <div className="sec-grid">
+        {data.sections.map(sec=>{
+          const pct=Math.round((sec.enrolled/sec.slots)*100);
+          return <div key={sec.id} className={`sec-opt${sel===sec.id?' sel':''}`} onClick={()=>setSel(sec.id)}>
+            {sel===sec.id&&<div style={{float:'right',color:'var(--blue)'}}><Ico n="check" s={16}/></div>}
+            <div style={{fontWeight:800,fontSize:15,color:'var(--blue-d)'}}>{sec.nm}</div>
+            <div style={{fontSize:11,color:'var(--g600)',marginTop:3,lineHeight:1.5}}>{sec.prog}</div>
+            <div style={{marginTop:6}}><span className="badge bb">Year {sec.yr}</span></div>
+            <div style={{marginTop:10}}>
+              <div style={{display:'flex',justifyContent:'space-between',fontSize:11,color:'var(--g600)',marginBottom:3}}><span>Enrolled</span><span>{sec.enrolled}/{sec.slots}</span></div>
+              <div className="pbar"><div className="pbar-fill" style={{width:`${pct}%`,background:pct>85?'var(--red)':pct>65?'var(--gold-d)':'var(--blue)'}}/></div>
+            </div>
+          </div>;
+        })}
+      </div>
+      <div style={{marginTop:20,display:'flex',justifyContent:'flex-end'}}>
+        <button className="btn btn-p" style={{padding:'10px 26px'}} onClick={go}>Confirm Section →</button>
+      </div>
+    </div>
+  </div>;
+}
+
+// ── STUDENT SHELL ──
+function StudentShell({session,data,onData,onLogout,showToast}){
+  const [pg,setPg]=useState('dashboard');
+  const s=data.students.find(x=>x.id===session.user.id)||session.user;
+  const sec=data.sections.find(x=>x.id===s.secId);
+  const subs=data.subjects.filter(x=>x.secId===s.secId);
+  const ini=(s.fn[0]||'')+(s.ln[0]||'');
+  const nav=[{id:'dashboard',label:'Dashboard',icon:'home'},{id:'schedule',label:'My Schedule',icon:'cal'},{id:'profile',label:'My Profile',icon:'user'}];
+  return <div className="shell">
+    <div className="sidebar">
+      <div className="sb-logo"><div className="sb-badge">USTP EMS</div><div className="sb-title">Student Portal</div><div className="sb-sub">AY 2025–2026 • 2nd Semester</div></div>
+      <div className="sb-nav">
+        <div className="nav-sec">Navigation</div>
+        {nav.map(n=><div key={n.id} className={`ni${pg===n.id?' active':''}`} onClick={()=>setPg(n.id)}><Ico n={n.icon} s={15}/><span>{n.label}</span></div>)}
+      </div>
+      <div className="sb-foot">
+        <div className="uchip">
+          <Av pic={s.pic} init={ini} size={30}/>
+          <div style={{flex:1,minWidth:0}}><div className="uname">{s.fn} {s.ln}</div><div className="urole">{sec?.nm||'No section'}</div></div>
+          <button className="lbtn" onClick={onLogout}><Ico n="logout" s={14}/></button>
+        </div>
+      </div>
+    </div>
+    <div className="main">
+      <div className="topbar">
+        <div className="tb-title">{nav.find(n=>n.id===pg)?.label}</div>
+        <div style={{display:'flex',alignItems:'center',gap:10}}><span className="sy-tag">SY 2025–2026</span><div onClick={()=>setPg('profile')} style={{cursor:'pointer'}}><Av pic={s.pic} init={ini} size={30}/></div></div>
+      </div>
+      <div className="pc">
+        {pg==='dashboard'&&<StudentDash s={s} sec={sec} subs={subs} data={data} setPg={setPg}/>}
+        {pg==='schedule'&&<StudentSched sec={sec} subs={subs} data={data}/>}
+        {pg==='profile'&&<StudentProf s={s} data={data} onData={onData} showToast={showToast} sec={sec}/>}
+      </div>
+    </div>
+  </div>;
+}
+
+function StudentDash({s,sec,subs,data,setPg}){
+  return <>
+    <div className="wbanner">
+      <div>
+        <h2 style={{fontSize:19,fontWeight:700}}>Good day, {s.fn}! 👋</h2>
+        <p style={{fontSize:13,opacity:.8,marginTop:4}}>Welcome to your USTP Student Portal.</p>
+        {sec&&<div style={{marginTop:10}}><span style={{background:'rgba(240,180,41,.28)',color:'var(--gold)',padding:'3px 14px',borderRadius:20,fontSize:12,fontWeight:700}}>📌 {sec.nm} — {sec.prog}</span></div>}
+      </div>
+      <div style={{fontSize:46,opacity:.25}}>🎓</div>
+    </div>
+    <div className="sgrid">
+      <div className="scard" onClick={()=>setPg('schedule')}><div className="sicon b"><Ico n="book" s={22}/></div><div><div className="sval">{subs.length}</div><div className="slbl">Subjects</div></div></div>
+      <div className="scard"><div className="sicon g"><Ico n="cal" s={22}/></div><div><div className="sval">{subs.reduce((a,x)=>a+x.units,0)}</div><div className="slbl">Total Units</div></div></div>
+      <div className="scard"><div className="sicon gr"><Ico n="users" s={22}/></div><div><div className="sval">{[...new Set(subs.map(x=>x.instId))].length}</div><div className="slbl">Instructors</div></div></div>
+      <div className="scard"><div className="sicon b"><Ico n="grid" s={22}/></div><div><div className="sval" style={{fontSize:14,lineHeight:1.3}}>{sec?.nm||'—'}</div><div className="slbl">My Section</div></div></div>
+    </div>
+    <div style={{display:'grid',gridTemplateColumns:'1fr 300px',gap:18}}>
+      <div className="card">
+        <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:14}}>
+          <div><div style={{fontWeight:700,fontSize:14,color:'var(--blue-d)'}}>My Subjects</div><div style={{fontSize:11,color:'var(--g600)',marginTop:1}}>{sec?.nm} — {sec?.prog}</div></div>
+          <button className="btn btn-s btn-o" onClick={()=>setPg('schedule')}>View Schedule</button>
+        </div>
+        {subs.length===0?<div style={{textAlign:'center',padding:'28px 0',color:'var(--g400)',fontSize:13}}>No subjects assigned yet.</div>
+        :subs.map((sub,i)=>{
+          const inst=data.instructors.find(x=>x.id===sub.instId);
+          return <div key={sub.id} className="subj-c">
+            <div style={{width:4,borderRadius:2,background:STRIPE[i%STRIPE.length],flexShrink:0}}/>
+            <div style={{flex:1}}>
+              <div style={{fontWeight:700,fontSize:13,color:'var(--blue-d)'}}>{sub.nm}</div>
+              <div style={{fontSize:12,color:'var(--g600)',marginTop:3,display:'flex',gap:12,flexWrap:'wrap'}}><span>📅 {sub.days}</span><span>⏰ {sub.st}–{sub.et}</span><span>📍 {sub.room}</span></div>
+              <div style={{marginTop:6,display:'flex',alignItems:'center',gap:6}}>
+                <div style={{width:20,height:20,borderRadius:'50%',background:'var(--blue-xl)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:9,fontWeight:700,color:'var(--blue)'}}>{inst?.nm?.[5]||'?'}</div>
+                <span style={{fontSize:12,color:'var(--g600)'}}>{inst?.nm||'TBA'}</span>
+                <span className="badge bb" style={{marginLeft:'auto'}}>{sub.units} units</span>
+              </div>
+            </div>
+          </div>;
+        })}
+      </div>
+      <div>
+        <div className="card" style={{marginBottom:14}}>
+          <div style={{fontWeight:700,fontSize:13,color:'var(--blue-d)',marginBottom:12}}>📣 Announcements</div>
+          {data.announcements.map(a=><div key={a.id} className="ann"><div style={{fontSize:12,fontWeight:600,color:'var(--blue-d)',lineHeight:1.4}}>{a.title}</div><div style={{fontSize:10,color:'var(--g600)',marginTop:3}}>{a.date}</div></div>)}
+        </div>
+        {sec&&<div className="card">
+          <div style={{fontWeight:700,fontSize:13,color:'var(--blue-d)',marginBottom:10}}>Section Details</div>
+          {[['Section',sec.nm],['Program',sec.prog],['Year',`Year ${sec.yr}`],['Slots',`${sec.enrolled}/${sec.slots}`]].map(([k,v])=><div key={k} style={{display:'flex',justifyContent:'space-between',padding:'6px 0',borderBottom:'1px solid var(--g100)',fontSize:12}}><span style={{color:'var(--g600)'}}>{k}</span><strong style={{textAlign:'right',maxWidth:140,fontSize:11}}>{v}</strong></div>)}
+        </div>}
+      </div>
+    </div>
+  </>;
+}
+
+function StudentSched({sec,subs,data}){
+  const days=['Monday','Tuesday','Wednesday','Thursday','Friday'];
+  const hours=['7:00','8:00','9:00','10:00','11:00','12:00','1:00','2:00','3:00','4:00'];
+  return <>
+    <div className="card" style={{marginBottom:18}}>
+      <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:14}}>
+        <div><div style={{fontWeight:700,fontSize:14,color:'var(--blue-d)'}}>Weekly Schedule</div><div style={{fontSize:11,color:'var(--g600)',marginTop:1}}>{sec?.nm||'No section'}</div></div>
+        {sec&&<span className="badge bb">{sec.prog}</span>}
+      </div>
+      <div style={{overflowX:'auto'}}>
+        <table style={{minWidth:560}}>
+          <thead><tr><th style={{width:70}}>Time</th>{days.map(d=><th key={d}>{d.slice(0,3)}</th>)}</tr></thead>
+          <tbody>{hours.map(t=>{
+            const suf=parseInt(t)<12?'AM':'PM';
+            return <tr key={t}>
+              <td style={{fontSize:10,color:'var(--g600)',whiteSpace:'nowrap',fontWeight:600}}>{t} {suf}</td>
+              {days.map(d=>{
+                const sub=subs.find(s=>s.days.toLowerCase().includes(d.slice(0,3).toLowerCase())&&s.st.replace(/ AM| PM/,'').split(':')[0]===t.split(':')[0]);
+                return <td key={d} style={{padding:3}}>{sub&&<div style={{background:'var(--blue-xl)',borderLeft:'3px solid var(--blue)',borderRadius:4,padding:'4px 6px',fontSize:10}}><div style={{fontWeight:700,color:'var(--blue-d)'}}>{sub.nm}</div><div style={{color:'var(--g600)'}}>{sub.room}</div></div>}</td>;
+              })}
+            </tr>;
+          })}</tbody>
+        </table>
+      </div>
+    </div>
+    <div className="card">
+      <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:14}}>
+        <div style={{fontWeight:700,fontSize:14,color:'var(--blue-d)'}}>Subject List</div>
+        <span className="badge bgy">{subs.length} subjects · {subs.reduce((a,x)=>a+x.units,0)} units</span>
+      </div>
+      {subs.map((sub,i)=>{
+        const inst=data.instructors.find(x=>x.id===sub.instId);
+        return <div key={sub.id} style={{display:'flex',alignItems:'center',gap:12,padding:'11px 0',borderBottom:'1px solid var(--g100)'}}>
+          <div style={{width:4,height:44,borderRadius:2,background:STRIPE[i%STRIPE.length],flexShrink:0}}/>
+          <div style={{flex:1}}><div style={{fontWeight:700,fontSize:13,color:'var(--blue-d)'}}>{sub.nm}</div><div style={{fontSize:11,color:'var(--g600)',marginTop:2}}>{sub.days} · {sub.st}–{sub.et} · {sub.room}</div></div>
+          <div style={{textAlign:'right',minWidth:120}}><div style={{fontSize:12,fontWeight:600}}>{inst?.nm||'TBA'}</div><div style={{fontSize:10,color:'var(--g400)'}}>{inst?.dept}</div></div>
+          <span className="badge bb">{sub.units}u</span>
+        </div>;
+      })}
+    </div>
+  </>;
+}
+
+function StudentProf({s,data,onData,showToast,sec}){
+  const [f,setF]=useState({email:s.email||'',pic:s.pic||null});
+  const [reqModal,setReqModal]=useState(false);
+  const [reqMsg,setReqMsg]=useState('');
+  const [tab,setTab]=useState('info');
+  const fileRef=useRef();
+  const fullNm=`${s.ln}, ${s.fn} ${s.mi?s.mi+'.':''} ${s.sx||''}`.trim().replace(/\s+/g,' ');
+  const ini=(s.fn[0]||'')+(s.ln[0]||'');
+  const save=()=>{
+    if(!f.email||!/\S+@\S+\.\S+/.test(f.email)){showToast('Please enter a valid email address.','error');return;}
+    const upd={...s,email:f.email,pic:f.pic};
+    onData({...data,students:data.students.map(x=>x.id===s.id?upd:x)});
+    showToast('Profile updated successfully!','success');
+  };
+  const handlePic=e=>{const file=e.target.files[0];if(!file)return;const r=new FileReader();r.onload=ev=>setF({...f,pic:ev.target.result});r.readAsDataURL(file);};
+  const sendReq=()=>{
+    if(!reqMsg.trim()){showToast('Please describe your request.','error');return;}
+    const upd={...s,reqs:[...(s.reqs||[]),{id:Date.now(),msg:reqMsg,status:'pending',date:new Date().toLocaleDateString('en-PH')}]};
+    onData({...data,students:data.students.map(x=>x.id===s.id?upd:x)});
+    showToast('Request sent to administrator!','success');
+    setReqModal(false);setReqMsg('');
+  };
+  const LF=({label,val})=><div className="fg">
+    <label className="fl" style={{display:'flex',alignItems:'center',gap:5}}><Ico n="lock" s={10}/>{label}<span style={{fontSize:9,background:'var(--g100)',color:'var(--g600)',padding:'1px 6px',borderRadius:4,marginLeft:3}}>Admin Only</span></label>
+    <div style={{position:'relative'}}><input className="fc" value={val||'—'} readOnly/><div className="lf-badge"><Ico n="lock" s={10}/></div></div>
+  </div>;
+  return <>
+    {reqModal&&<Modal title="Request Profile Change" onClose={()=>setReqModal(false)} footer={<><button className="btn btn-o" onClick={()=>setReqModal(false)}>Cancel</button><button className="btn btn-p" onClick={sendReq}>Send Request</button></>}>
+      <div className="alert al-w" style={{marginBottom:12}}><Ico n="info" s={14}/><span>The admin will review your request. Changes are not immediate.</span></div>
+      <div className="fg"><label className="fl">Describe what you'd like to change</label><textarea className="fc" rows={4} placeholder="e.g. Please update my middle name. My phone number should be 09171234567." value={reqMsg} onChange={e=>setReqMsg(e.target.value)} style={{resize:'vertical'}}/></div>
+    </Modal>}
+    <div className="alert al-w" style={{marginBottom:18}}><Ico n="info" s={15}/><span><strong>Notice:</strong> For major information changes, please contact the administrator or submit a Request Change.</span></div>
+    <div style={{display:'grid',gridTemplateColumns:'230px 1fr',gap:18}}>
+      <div className="card" style={{textAlign:'center'}}>
+        <input type="file" ref={fileRef} accept="image/*" onChange={handlePic}/>
+        <div style={{marginBottom:14}}>
+          <div className="ppw">
+            {f.pic?<img src={f.pic} className="ppl"/>:<div style={{width:84,height:84,borderRadius:'50%',background:'var(--blue-xl)',border:'3px solid var(--blue)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:26,fontWeight:700,color:'var(--blue)',margin:'0 auto'}}>{ini}</div>}
+            <div className="ppe" onClick={()=>fileRef.current.click()}><Ico n="cam" s={12}/></div>
+          </div>
+        </div>
+        <div style={{fontWeight:700,fontSize:14,color:'var(--blue-d)'}}>{fullNm}</div>
+        <div style={{fontSize:11,color:'var(--g600)',marginTop:3}}>{sec?.nm||'No Section'}{sec&&` · Year ${sec.yr}`}</div>
+        <div style={{marginTop:10}}><span className="badge bgr">Active Student</span></div>
+        <div style={{marginTop:14,padding:'10px 0',borderTop:'1px solid var(--g100)'}}>
+          {[['Subjects',data.subjects.filter(x=>x.secId===s.secId).length],['Units',data.subjects.filter(x=>x.secId===s.secId).reduce((a,x)=>a+x.units,0)]].map(([k,v])=><div key={k} style={{display:'flex',justifyContent:'space-between',fontSize:12,padding:'4px 0'}}><span style={{color:'var(--g600)'}}>{k}</span><strong>{v}</strong></div>)}
+        </div>
+        <button className="btn btn-o" style={{width:'100%',marginTop:10,fontSize:12}} onClick={()=>setReqModal(true)}><Ico n="msg" s={13}/>Request Change</button>
+      </div>
+      <div className="card">
+        <div className="tabs">
+          {['info','requests'].map(t=><div key={t} className={`tab${tab===t?' act':''}`} onClick={()=>setTab(t)}>{t==='info'?'Profile Info':`Requests (${(s.reqs||[]).length})`}</div>)}
+        </div>
+        {tab==='info'&&<>
+          <div style={{marginBottom:16,paddingBottom:14,borderBottom:'1px solid var(--g100)'}}>
+            <div style={{fontSize:11,fontWeight:700,color:'var(--blue)',marginBottom:10,textTransform:'uppercase',letterSpacing:.5}}>✏️ Editable Fields</div>
+            <div className="fg"><label className="fl">Profile Picture</label><div style={{display:'flex',gap:8}}><input className="fc" value={f.pic?'Image uploaded':'No image'} readOnly style={{flex:1}}/><button className="btn btn-s btn-o" onClick={()=>fileRef.current.click()}><Ico n="cam" s={13}/>Change</button></div></div>
+            <div className="fg"><label className="fl">Email Address</label><input className="fc" type="email" value={f.email} onChange={e=>setF({...f,email:e.target.value})}/></div>
+          </div>
+          <div style={{marginBottom:14}}>
+            <div style={{fontSize:11,fontWeight:700,color:'var(--g500)',marginBottom:10,textTransform:'uppercase',letterSpacing:.5}}>🔒 View Only — Admin Managed</div>
+            <div className="fr2"><LF label="Full Name" val={fullNm}/><LF label="Birthdate" val={s.bd}/></div>
+            <LF label="Complete Address" val={s.addr}/>
+            <div className="fr2"><LF label="Phone Number" val={s.ph}/><LF label="Assigned Section" val={sec?.nm}/></div>
+          </div>
+          <div style={{display:'flex',justifyContent:'flex-end'}}><button className="btn btn-p" onClick={save}><Ico n="check" s={14}/>Save Changes</button></div>
+        </>}
+        {tab==='requests'&&<>
+          {(s.reqs||[]).length===0?<div style={{textAlign:'center',padding:'32px 0',color:'var(--g400)',fontSize:13}}>No requests yet.<br/><button className="btn btn-o" style={{marginTop:12}} onClick={()=>setReqModal(true)}>Submit a Request</button></div>
+          :<div>{(s.reqs||[]).slice().reverse().map(r=><div key={r.id} style={{padding:'12px 0',borderBottom:'1px solid var(--g100)',display:'flex',gap:12,alignItems:'flex-start'}}>
+            <span className={`badge ${r.status==='pending'?'bg':r.status==='approved'?'bgr':'br'}`}>{r.status}</span>
+            <div style={{flex:1}}><div style={{fontSize:13,color:'var(--g800)'}}>{r.msg}</div><div style={{fontSize:11,color:'var(--g400)',marginTop:3}}>{r.date}</div></div>
+          </div>)}</div>}
+        </>}
+      </div>
+    </div>
+  </>;
+}
+
+// ── ADMIN SHELL ──
+function AdminShell({session,data,onData,onLogout,showToast}){
+  const [pg,setPg]=useState('dashboard');
+  const pendReqs=data.students.filter(s=>(s.reqs||[]).some(r=>r.status==='pending')).length;
+  const nav=[{id:'dashboard',label:'Dashboard',icon:'home'},{id:'students',label:'Students',icon:'users'},{id:'sections',label:'Sections',icon:'grid'},{id:'subjects',label:'Subjects',icon:'book'},{id:'instructors',label:'Instructors',icon:'users'},{id:'schedules',label:'Schedules',icon:'cal'},{id:'requests',label:'Change Requests',icon:'doc',badge:pendReqs}];
+  return <div className="shell">
+    <div className="sidebar">
+      <div className="sb-logo"><div className="sb-badge">USTP EMS</div><div className="sb-title">Admin Portal</div><div className="sb-sub">Enrollment Management System</div></div>
+      <div className="sb-nav">
+        <div className="nav-sec">Management</div>
+        {nav.map(n=><div key={n.id} className={`ni${pg===n.id?' active':''}`} onClick={()=>setPg(n.id)}><Ico n={n.icon} s={15}/><span>{n.label}</span>{n.badge>0&&<span className="dot"/>}</div>)}
+      </div>
+      <div className="sb-foot">
+        <div className="uchip"><Av init="A" size={30} gold/><div style={{flex:1,minWidth:0}}><div className="uname">Administrator</div><div className="urole">Full Access</div></div><button className="lbtn" onClick={onLogout}><Ico n="logout" s={14}/></button></div>
+      </div>
+    </div>
+    <div className="main">
+      <div className="topbar">
+        <div className="tb-title">{nav.find(n=>n.id===pg)?.label}</div>
+        <div style={{display:'flex',alignItems:'center',gap:10}}><span className="sy-tag">SY 2025–2026</span><Av init="A" size={30} gold/></div>
+      </div>
+      <div className="pc">
+        {pg==='dashboard'&&<AdminDash data={data} setPg={setPg}/>}
+        {pg==='students'&&<AdminStudents data={data} onData={onData} showToast={showToast}/>}
+        {pg==='sections'&&<AdminSections data={data} onData={onData} showToast={showToast}/>}
+        {pg==='subjects'&&<AdminSubjects data={data} onData={onData} showToast={showToast}/>}
+        {pg==='instructors'&&<AdminInstructors data={data} onData={onData} showToast={showToast}/>}
+        {pg==='schedules'&&<AdminSchedules data={data}/>}
+        {pg==='requests'&&<AdminRequests data={data} onData={onData} showToast={showToast}/>}
+      </div>
+    </div>
+  </div>;
+}
+
+function AdminDash({data,setPg}){
+  const pendReqs=data.students.filter(s=>(s.reqs||[]).some(r=>r.status==='pending')).length;
+  return <>
+    <div className="wbanner"><div><h2 style={{fontSize:19,fontWeight:700}}>Admin Dashboard ⚙️</h2><p style={{fontSize:13,opacity:.8,marginTop:4}}>USTP Enrollment Management — Full administrative control.</p></div><div style={{fontSize:44,opacity:.2}}>🏛️</div></div>
+    <div className="sgrid">
+      <div className="scard" onClick={()=>setPg('students')}><div className="sicon b"><Ico n="users" s={22}/></div><div><div className="sval">{data.students.length}</div><div className="slbl">Students</div></div></div>
+      <div className="scard" onClick={()=>setPg('sections')}><div className="sicon g"><Ico n="grid" s={22}/></div><div><div className="sval">{data.sections.length}</div><div className="slbl">Sections</div></div></div>
+      <div className="scard" onClick={()=>setPg('subjects')}><div className="sicon gr"><Ico n="book" s={22}/></div><div><div className="sval">{data.subjects.length}</div><div className="slbl">Subjects</div></div></div>
+      <div className="scard" onClick={()=>setPg('instructors')}><div className="sicon b"><Ico n="users" s={22}/></div><div><div className="sval">{data.instructors.length}</div><div className="slbl">Instructors</div></div></div>
+      {pendReqs>0&&<div className="scard" style={{border:'1.5px solid var(--gold)'}} onClick={()=>setPg('requests')}><div className="sicon g"><Ico n="doc" s={22}/></div><div><div className="sval" style={{color:'var(--gold-d)'}}>{pendReqs}</div><div className="slbl">Pending Requests</div></div></div>}
+    </div>
+    <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:18}}>
+      <div className="card">
+        <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:12}}><div style={{fontWeight:700,fontSize:14,color:'var(--blue-d)'}}>Students</div><button className="btn btn-xs btn-o" onClick={()=>setPg('students')}>View All</button></div>
+        <table><thead><tr><th>Student</th><th>Section</th><th>Status</th></tr></thead>
+        <tbody>{data.students.slice().reverse().slice(0,5).map(s=>{const sec=data.sections.find(x=>x.id===s.secId);return <tr key={s.id}><td><div style={{fontWeight:600,fontSize:12}}>{s.fn} {s.ln}</div><div style={{fontSize:10,color:'var(--g500)'}}>{s.email}</div></td><td>{sec?<span className="badge bb">{sec.nm}</span>:<span className="badge bgy">None</span>}</td><td><span className={`badge ${s.appDone?'bgr':'bg'}`}>{s.appDone?'Enrolled':'Pending'}</span></td></tr>;})}
+        </tbody></table>
+      </div>
+      <div className="card">
+        <div style={{fontWeight:700,fontSize:14,color:'var(--blue-d)',marginBottom:14}}>Section Capacity</div>
+        {data.sections.map(sec=>{const pct=Math.round((sec.enrolled/sec.slots)*100);return <div key={sec.id} style={{marginBottom:13}}>
+          <div style={{display:'flex',justifyContent:'space-between',fontSize:12,marginBottom:4}}><span style={{fontWeight:600}}>{sec.nm}</span><span style={{color:'var(--g600)'}}>{sec.enrolled}/{sec.slots} ({pct}%)</span></div>
+          <div className="pbar"><div className="pbar-fill" style={{width:`${pct}%`,background:pct>85?'var(--red)':pct>65?'var(--gold-d)':'var(--blue)'}}/></div>
+        </div>;})}
+      </div>
+    </div>
+  </>;
+}
+
+function AdminStudents({data,onData,showToast}){
+  const [modal,setModal]=useState(null);
+  const [form,setForm]=useState({});
+  const [search,setSearch]=useState('');
+  const [confirmId,setConfirmId]=useState(null);
+  const blank={id:null,email:'',pw:'',fn:'',ln:'',mi:'',sx:'',bd:'',addr:'',ph:'',secId:'',pic:null,appDone:false,reqs:[]};
+  const openNew=()=>{setForm({...blank,id:Date.now()});setModal('edit');};
+  const openEdit=s=>{setForm({...s,secId:s.secId||''});setModal('edit');};
+  const save=()=>{
+    if(!form.fn||!form.ln||!form.email){showToast('Name and email are required.','error');return;}
+    const exists=data.students.find(s=>s.id===form.id);
+    const row={...form,secId:form.secId?parseInt(form.secId):null,pw:form.pw||'student123',reqs:form.reqs||[]};
+    const students=exists?data.students.map(s=>s.id===form.id?row:s):[...data.students,row];
+    onData({...data,students});showToast(exists?'Student updated!':'Student added!','success');setModal(null);
+  };
+  const del=id=>{onData({...data,students:data.students.filter(s=>s.id!==id)});showToast('Student deleted.','success');setConfirmId(null);};
+  const filtered=data.students.filter(s=>`${s.fn} ${s.ln} ${s.email}`.toLowerCase().includes(search.toLowerCase()));
+  return <>
+    {confirmId&&<Confirm msg="Permanently delete this student? This cannot be undone." onYes={()=>del(confirmId)} onNo={()=>setConfirmId(null)}/>}
+    {modal==='edit'&&<Modal title={data.students.find(s=>s.id===form.id)?'Edit Student':'Add New Student'} onClose={()=>setModal(null)} footer={<><button className="btn btn-o" onClick={()=>setModal(null)}>Cancel</button><button className="btn btn-p" onClick={save}>Save</button></>}>
+      <div className="fr3"><div className="fg"><label className="fl">First Name *</label><input className="fc" value={form.fn||''} onChange={e=>setForm({...form,fn:e.target.value})}/></div><div className="fg"><label className="fl">Last Name *</label><input className="fc" value={form.ln||''} onChange={e=>setForm({...form,ln:e.target.value})}/></div><div className="fg"><label className="fl">M.I.</label><input className="fc" maxLength={1} value={form.mi||''} onChange={e=>setForm({...form,mi:e.target.value})}/></div></div>
+      <div className="fr2"><div className="fg"><label className="fl">Suffix</label><select className="fc" value={form.sx||''} onChange={e=>setForm({...form,sx:e.target.value})}><option value="">None</option><option>Jr.</option><option>Sr.</option><option>II</option><option>III</option></select></div><div className="fg"><label className="fl">Birthdate</label><input className="fc" type="date" value={form.bd||''} onChange={e=>setForm({...form,bd:e.target.value})}/></div></div>
+      <div className="fg"><label className="fl">Email *</label><input className="fc" type="email" value={form.email||''} onChange={e=>setForm({...form,email:e.target.value})}/></div>
+      <div className="fr2"><div className="fg"><label className="fl">Phone</label><input className="fc" value={form.ph||''} onChange={e=>setForm({...form,ph:e.target.value})}/></div><div className="fg"><label className="fl">Section</label><select className="fc" value={form.secId||''} onChange={e=>setForm({...form,secId:e.target.value})}><option value="">None</option>{data.sections.map(s=><option key={s.id} value={s.id}>{s.nm}</option>)}</select></div></div>
+      <div className="fg"><label className="fl">Address</label><textarea className="fc" rows={2} value={form.addr||''} onChange={e=>setForm({...form,addr:e.target.value})} style={{resize:'vertical'}}/></div>
+      {!data.students.find(s=>s.id===form.id)&&<div className="fg"><label className="fl">Password</label><input className="fc" type="password" placeholder="Default: student123" value={form.pw||''} onChange={e=>setForm({...form,pw:e.target.value})}/></div>}
+      <div className="fg"><label className="fl">Status</label><select className="fc" value={form.appDone?'1':'0'} onChange={e=>setForm({...form,appDone:e.target.value==='1'})}><option value="0">Pending</option><option value="1">Enrolled</option></select></div>
+    </Modal>}
+    <div style={{display:'flex',gap:10,marginBottom:14,alignItems:'center',flexWrap:'wrap'}}>
+      <div style={{position:'relative',flex:1,maxWidth:300}}><div style={{position:'absolute',left:10,top:'50%',transform:'translateY(-50%)',color:'var(--g400)'}}><Ico n="search" s={14}/></div><input className="fc" style={{paddingLeft:32}} placeholder="Search students..." value={search} onChange={e=>setSearch(e.target.value)}/></div>
+      <span style={{fontSize:12,color:'var(--g600)'}}>{filtered.length} student{filtered.length!==1?'s':''}</span>
+      <button className="btn btn-p" style={{marginLeft:'auto'}} onClick={openNew}><Ico n="plus" s={14}/>Add Student</button>
+    </div>
+    <div className="card"><div className="tw"><table><thead><tr><th>Student</th><th>Contact</th><th>Section</th><th>Status</th><th>Actions</th></tr></thead>
+    <tbody>{filtered.map(s=>{const sec=data.sections.find(x=>x.id===s.secId);const nm=`${s.ln}, ${s.fn} ${s.mi?s.mi+'.':''} ${s.sx||''}`.trim();const ini=(s.fn[0]||'')+(s.ln[0]||'');return <tr key={s.id}>
+      <td><div style={{display:'flex',alignItems:'center',gap:9}}><Av pic={s.pic} init={ini} size={30}/><div><div style={{fontWeight:600,fontSize:12}}>{nm}</div><div style={{fontSize:10,color:'var(--g400)'}}>ID: {s.id}</div></div></div></td>
+      <td><div style={{fontSize:12}}>{s.email}</div><div style={{fontSize:11,color:'var(--g500)'}}>{s.ph}</div></td>
+      <td>{sec?<span className="badge bb">{sec.nm}</span>:<span className="badge bgy">None</span>}</td>
+      <td><span className={`badge ${s.appDone?'bgr':'bg'}`}>{s.appDone?'Enrolled':'Pending'}</span></td>
+      <td><div style={{display:'flex',gap:5}}><button className="btn btn-xs btn-o" onClick={()=>openEdit(s)}><Ico n="edit" s={12}/></button><button className="btn btn-xs btn-d" onClick={()=>setConfirmId(s.id)}><Ico n="trash" s={12}/></button></div></td>
+    </tr>;})}
+    </tbody></table></div></div>
+  </>;
+}
+
+function AdminSections({data,onData,showToast}){
+  const [modal,setModal]=useState(null);
+  const [form,setForm]=useState({});
+  const [confirmId,setConfirmId]=useState(null);
+  const blank={id:null,nm:'',prog:'',yr:1,slots:40,enrolled:0};
+  const openNew=()=>{setForm({...blank,id:Date.now()});setModal('edit');};
+  const openEdit=s=>{setForm({...s});setModal('edit');};
+  const save=()=>{
+    if(!form.nm||!form.prog){showToast('Section name and program required.','error');return;}
+    const exists=data.sections.find(s=>s.id===form.id);
+    const row={...form,yr:parseInt(form.yr)||1,slots:parseInt(form.slots)||40,enrolled:parseInt(form.enrolled)||0};
+    const sections=exists?data.sections.map(s=>s.id===form.id?row:s):[...data.sections,row];
+    onData({...data,sections});showToast(exists?'Section updated!':'Section created!','success');setModal(null);
+  };
+  const del=id=>{onData({...data,sections:data.sections.filter(s=>s.id!==id)});showToast('Section deleted.','success');setConfirmId(null);};
+  return <>
+    {confirmId&&<Confirm msg="Delete this section?" onYes={()=>del(confirmId)} onNo={()=>setConfirmId(null)}/>}
+    {modal==='edit'&&<Modal title={data.sections.find(s=>s.id===form.id)?'Edit Section':'New Section'} onClose={()=>setModal(null)} footer={<><button className="btn btn-o" onClick={()=>setModal(null)}>Cancel</button><button className="btn btn-p" onClick={save}>Save</button></>}>
+      <div className="fg"><label className="fl">Section Name *</label><input className="fc" placeholder="BSIT-1A" value={form.nm||''} onChange={e=>setForm({...form,nm:e.target.value})}/></div>
+      <div className="fg"><label className="fl">Program *</label><input className="fc" placeholder="BS Information Technology" value={form.prog||''} onChange={e=>setForm({...form,prog:e.target.value})}/></div>
+      <div className="fr3"><div className="fg"><label className="fl">Year Level</label><select className="fc" value={form.yr||1} onChange={e=>setForm({...form,yr:e.target.value})}>{[1,2,3,4].map(y=><option key={y} value={y}>Year {y}</option>)}</select></div><div className="fg"><label className="fl">Total Slots</label><input className="fc" type="number" min={1} value={form.slots||40} onChange={e=>setForm({...form,slots:e.target.value})}/></div><div className="fg"><label className="fl">Enrolled</label><input className="fc" type="number" min={0} value={form.enrolled||0} onChange={e=>setForm({...form,enrolled:e.target.value})}/></div></div>
+    </Modal>}
+    <div style={{display:'flex',justifyContent:'flex-end',marginBottom:14}}><button className="btn btn-p" onClick={openNew}><Ico n="plus" s={14}/>New Section</button></div>
+    <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(260px,1fr))',gap:14}}>
+      {data.sections.map(sec=>{const pct=Math.round((sec.enrolled/sec.slots)*100);const subjCnt=data.subjects.filter(s=>s.secId===sec.id).length;const studCnt=data.students.filter(s=>s.secId===sec.id).length;return <div key={sec.id} className="card">
+        <div className="card-stripe"/>
+        <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start',marginBottom:10}}><div><div style={{fontWeight:800,fontSize:15,color:'var(--blue-d)'}}>{sec.nm}</div><div style={{fontSize:11,color:'var(--g600)',marginTop:2,lineHeight:1.4}}>{sec.prog}</div></div><span className="badge bb">Yr {sec.yr}</span></div>
+        <div style={{display:'flex',gap:8,marginBottom:10}}>{[['Students',studCnt],['Subjects',subjCnt],['Slots',sec.slots]].map(([k,v])=><div key={k} style={{flex:1,background:'var(--g50)',borderRadius:8,padding:'7px 8px',textAlign:'center'}}><div style={{fontWeight:700,fontSize:15,color:'var(--blue)'}}>{v}</div><div style={{fontSize:9,color:'var(--g600)'}}>{k}</div></div>)}</div>
+        <div style={{marginBottom:12}}><div style={{display:'flex',justifyContent:'space-between',fontSize:11,color:'var(--g600)',marginBottom:3}}><span>Capacity</span><span>{pct}%</span></div><div className="pbar"><div className="pbar-fill" style={{width:`${pct}%`,background:pct>85?'var(--red)':pct>65?'var(--gold-d)':'var(--blue)'}}/></div></div>
+        <div style={{display:'flex',gap:7}}><button className="btn btn-s btn-o" style={{flex:1}} onClick={()=>openEdit(sec)}><Ico n="edit" s={12}/>Edit</button><button className="btn btn-s btn-d" onClick={()=>setConfirmId(sec.id)}><Ico n="trash" s={12}/></button></div>
+      </div>;})}
+    </div>
+  </>;
+}
+
+function AdminSubjects({data,onData,showToast}){
+  const [modal,setModal]=useState(null);
+  const [form,setForm]=useState({});
+  const [confirmId,setConfirmId]=useState(null);
+  const [filter,setFilter]=useState('');
+  const blank={id:null,nm:'',secId:'',units:3,days:'',st:'',et:'',instId:'',room:''};
+  const openNew=()=>{setForm({...blank,id:Date.now()});setModal('edit');};
+  const openEdit=s=>{setForm({...s,secId:s.secId||'',instId:s.instId||''});setModal('edit');};
+  const save=()=>{
+    if(!form.nm||!form.secId){showToast('Subject name and section required.','error');return;}
+    const exists=data.subjects.find(s=>s.id===form.id);
+    const row={...form,secId:parseInt(form.secId),instId:form.instId?parseInt(form.instId):null,units:parseInt(form.units)||3};
+    const subjects=exists?data.subjects.map(s=>s.id===form.id?row:s):[...data.subjects,row];
+    onData({...data,subjects});showToast(exists?'Subject updated!':'Subject added!','success');setModal(null);
+  };
+  const del=id=>{onData({...data,subjects:data.subjects.filter(s=>s.id!==id)});showToast('Subject deleted.','success');setConfirmId(null);};
+  const filtered=filter?data.subjects.filter(s=>s.secId===parseInt(filter)):data.subjects;
+  return <>
+    {confirmId&&<Confirm msg="Delete this subject?" onYes={()=>del(confirmId)} onNo={()=>setConfirmId(null)}/>}
+    {modal==='edit'&&<Modal title={data.subjects.find(s=>s.id===form.id)?'Edit Subject':'Add Subject'} onClose={()=>setModal(null)} footer={<><button className="btn btn-o" onClick={()=>setModal(null)}>Cancel</button><button className="btn btn-p" onClick={save}>Save</button></>}>
+      <div className="fg"><label className="fl">Subject Name *</label><input className="fc" placeholder="Programming 1" value={form.nm||''} onChange={e=>setForm({...form,nm:e.target.value})}/></div>
+      <div className="fr2"><div className="fg"><label className="fl">Section *</label><select className="fc" value={form.secId||''} onChange={e=>setForm({...form,secId:e.target.value})}><option value="">Select...</option>{data.sections.map(s=><option key={s.id} value={s.id}>{s.nm}</option>)}</select></div><div className="fg"><label className="fl">Units</label><input className="fc" type="number" min={1} max={6} value={form.units||3} onChange={e=>setForm({...form,units:e.target.value})}/></div></div>
+      <div className="fg"><label className="fl">Days</label><input className="fc" placeholder="Mon & Wed" value={form.days||''} onChange={e=>setForm({...form,days:e.target.value})}/></div>
+      <div className="fr2"><div className="fg"><label className="fl">Start Time</label><input className="fc" placeholder="8:00 AM" value={form.st||''} onChange={e=>setForm({...form,st:e.target.value})}/></div><div className="fg"><label className="fl">End Time</label><input className="fc" placeholder="10:00 AM" value={form.et||''} onChange={e=>setForm({...form,et:e.target.value})}/></div></div>
+      <div className="fr2"><div className="fg"><label className="fl">Instructor</label><select className="fc" value={form.instId||''} onChange={e=>setForm({...form,instId:e.target.value})}><option value="">TBA</option>{data.instructors.map(i=><option key={i.id} value={i.id}>{i.nm}</option>)}</select></div><div className="fg"><label className="fl">Room</label><input className="fc" placeholder="Room 101" value={form.room||''} onChange={e=>setForm({...form,room:e.target.value})}/></div></div>
+    </Modal>}
+    <div style={{display:'flex',gap:10,marginBottom:14,alignItems:'center',flexWrap:'wrap'}}>
+      <select className="fc" style={{maxWidth:200}} value={filter} onChange={e=>setFilter(e.target.value)}><option value="">All Sections</option>{data.sections.map(s=><option key={s.id} value={s.id}>{s.nm}</option>)}</select>
+      <span style={{fontSize:12,color:'var(--g600)'}}>{filtered.length} subject{filtered.length!==1?'s':''}</span>
+      <button className="btn btn-p" style={{marginLeft:'auto'}} onClick={openNew}><Ico n="plus" s={14}/>Add Subject</button>
+    </div>
+    <div className="card"><div className="tw"><table><thead><tr><th>Subject</th><th>Section</th><th>Days</th><th>Time</th><th>Room</th><th>Instructor</th><th>Units</th><th>Actions</th></tr></thead>
+    <tbody>{filtered.map(s=>{const sec=data.sections.find(x=>x.id===s.secId);const inst=data.instructors.find(i=>i.id===s.instId);return <tr key={s.id}>
+      <td style={{fontWeight:600}}>{s.nm}</td><td>{sec?<span className="badge bb">{sec.nm}</span>:'—'}</td><td style={{fontSize:12}}>{s.days}</td><td style={{fontSize:12,whiteSpace:'nowrap'}}>{s.st}–{s.et}</td><td style={{fontSize:12}}>{s.room}</td><td style={{fontSize:12}}>{inst?.nm||<span style={{color:'var(--g400)'}}>TBA</span>}</td><td><span className="badge bgy">{s.units}u</span></td>
+      <td><div style={{display:'flex',gap:5}}><button className="btn btn-xs btn-o" onClick={()=>openEdit(s)}><Ico n="edit" s={12}/></button><button className="btn btn-xs btn-d" onClick={()=>setConfirmId(s.id)}><Ico n="trash" s={12}/></button></div></td>
+    </tr>;})}
+    </tbody></table></div></div>
+  </>;
+}
+
+function AdminInstructors({data,onData,showToast}){
+  const [modal,setModal]=useState(null);
+  const [form,setForm]=useState({});
+  const [confirmId,setConfirmId]=useState(null);
+  const blank={id:null,nm:'',email:'',dept:'',spec:''};
+  const openNew=()=>{setForm({...blank,id:Date.now()});setModal('edit');};
+  const openEdit=i=>{setForm({...i});setModal('edit');};
+  const save=()=>{
+    if(!form.nm||!form.email){showToast('Name and email required.','error');return;}
+    const exists=data.instructors.find(i=>i.id===form.id);
+    const instructors=exists?data.instructors.map(i=>i.id===form.id?form:i):[...data.instructors,form];
+    onData({...data,instructors});showToast(exists?'Updated!':'Instructor added!','success');setModal(null);
+  };
+  const del=id=>{onData({...data,instructors:data.instructors.filter(i=>i.id!==id)});showToast('Removed.','success');setConfirmId(null);};
+  return <>
+    {confirmId&&<Confirm msg="Remove this instructor?" onYes={()=>del(confirmId)} onNo={()=>setConfirmId(null)}/>}
+    {modal==='edit'&&<Modal title={data.instructors.find(i=>i.id===form.id)?'Edit Instructor':'Add Instructor'} onClose={()=>setModal(null)} footer={<><button className="btn btn-o" onClick={()=>setModal(null)}>Cancel</button><button className="btn btn-p" onClick={save}>Save</button></>}>
+      <div className="fg"><label className="fl">Full Name *</label><input className="fc" placeholder="Prof. Juan Cruz" value={form.nm||''} onChange={e=>setForm({...form,nm:e.target.value})}/></div>
+      <div className="fg"><label className="fl">Email *</label><input className="fc" type="email" value={form.email||''} onChange={e=>setForm({...form,email:e.target.value})}/></div>
+      <div className="fr2"><div className="fg"><label className="fl">Department</label><input className="fc" placeholder="CCS" value={form.dept||''} onChange={e=>setForm({...form,dept:e.target.value})}/></div><div className="fg"><label className="fl">Specialization</label><input className="fc" placeholder="Programming" value={form.spec||''} onChange={e=>setForm({...form,spec:e.target.value})}/></div></div>
+    </Modal>}
+    <div style={{display:'flex',justifyContent:'flex-end',marginBottom:14}}><button className="btn btn-p" onClick={openNew}><Ico n="plus" s={14}/>Add Instructor</button></div>
+    <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(250px,1fr))',gap:14}}>
+      {data.instructors.map(inst=>{const subs=data.subjects.filter(s=>s.instId===inst.id);const ini=inst.nm.split(' ').filter(w=>/^[A-Z]/.test(w)).slice(-2).map(w=>w[0]).join('');return <div key={inst.id} className="card">
+        <div style={{display:'flex',gap:11,marginBottom:12}}><div style={{width:46,height:46,borderRadius:'50%',background:'var(--blue-xl)',display:'flex',alignItems:'center',justifyContent:'center',fontWeight:700,fontSize:15,color:'var(--blue)',flexShrink:0}}>{ini}</div><div style={{flex:1,minWidth:0}}><div style={{fontWeight:700,fontSize:13,color:'var(--blue-d)'}}>{inst.nm}</div><div style={{fontSize:11,color:'var(--g600)',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{inst.email}</div></div></div>
+        <div style={{display:'flex',gap:6,marginBottom:11,flexWrap:'wrap'}}>{inst.dept&&<span className="badge bb">{inst.dept}</span>}{inst.spec&&<span className="badge bgy">{inst.spec}</span>}</div>
+        <div style={{fontSize:12,color:'var(--g600)',marginBottom:10,paddingBottom:8,borderBottom:'1px solid var(--g100)'}}>Assigned to <strong>{subs.length}</strong> subject{subs.length!==1?'s':''}</div>
+        {subs.slice(0,3).map(s=>{const sec=data.sections.find(x=>x.id===s.secId);return <div key={s.id} style={{fontSize:11,color:'var(--g600)',marginBottom:3}}>• {s.nm} {sec?`(${sec.nm})`:''}</div>;})}
+        <div style={{display:'flex',gap:7,marginTop:12}}><button className="btn btn-s btn-o" style={{flex:1}} onClick={()=>openEdit(inst)}><Ico n="edit" s={12}/>Edit</button><button className="btn btn-s btn-d" onClick={()=>setConfirmId(inst.id)}><Ico n="trash" s={12}/></button></div>
+      </div>;})}
+    </div>
+  </>;
+}
+
+function AdminSchedules({data}){
+  const [filter,setFilter]=useState('');
+  const filtered=filter?data.subjects.filter(s=>s.secId===parseInt(filter)):data.subjects;
+  return <>
+    <div style={{display:'flex',gap:10,marginBottom:14,alignItems:'center'}}>
+      <select className="fc" style={{maxWidth:220}} value={filter} onChange={e=>setFilter(e.target.value)}><option value="">All Sections</option>{data.sections.map(s=><option key={s.id} value={s.id}>{s.nm}</option>)}</select>
+      <span style={{fontSize:12,color:'var(--g600)'}}>{filtered.length} entries</span>
+    </div>
+    <div className="card"><div className="tw"><table><thead><tr><th>Subject</th><th>Section</th><th>Days</th><th>Start</th><th>End</th><th>Room</th><th>Instructor</th><th>Units</th></tr></thead>
+    <tbody>{filtered.map(s=>{const sec=data.sections.find(x=>x.id===s.secId);const inst=data.instructors.find(i=>i.id===s.instId);return <tr key={s.id}>
+      <td style={{fontWeight:600}}>{s.nm}</td><td>{sec?<span className="badge bb">{sec.nm}</span>:'—'}</td>
+      <td><span style={{fontSize:12,background:'var(--g50)',padding:'2px 8px',borderRadius:6,border:'1px solid var(--g200)'}}>{s.days}</span></td>
+      <td style={{fontSize:12,fontWeight:600,color:'var(--blue)',whiteSpace:'nowrap'}}>{s.st}</td><td style={{fontSize:12,whiteSpace:'nowrap'}}>{s.et}</td><td style={{fontSize:12}}>{s.room}</td>
+      <td style={{fontSize:12}}>{inst?.nm||<span style={{color:'var(--g400)',fontStyle:'italic'}}>TBA</span>}</td><td><span className="badge bgy">{s.units}u</span></td>
+    </tr>;})}
+    </tbody></table></div></div>
+  </>;
+}
+
+function AdminRequests({data,onData,showToast}){
+  const all=data.students.flatMap(s=>(s.reqs||[]).map(r=>({...r,stud:s})));
+  const pending=all.filter(r=>r.status==='pending');
+  const past=all.filter(r=>r.status!=='pending').slice().reverse();
+  const act=(studId,reqId,status)=>{
+    const students=data.students.map(s=>s.id===studId?{...s,reqs:s.reqs.map(r=>r.id===reqId?{...r,status}:r)}:s);
+    onData({...data,students});showToast(status==='approved'?'Request approved!':'Request rejected.','success');
+  };
+  return <>
+    {pending.length===0&&<div className="alert al-s"><Ico n="check" s={15}/><span>No pending change requests at this time.</span></div>}
+    {pending.length>0&&<><div style={{fontWeight:700,color:'var(--blue-d)',marginBottom:12,fontSize:14}}>Pending ({pending.length})</div>
+    <div className="card" style={{marginBottom:20}}>
+      {pending.map(req=>{const ini=(req.stud.fn[0]||'')+(req.stud.ln[0]||'');return <div key={req.id} style={{padding:'14px 0',borderBottom:'1px solid var(--g100)',display:'flex',gap:12,alignItems:'flex-start'}}>
+        <Av init={ini} size={36}/>
+        <div style={{flex:1}}><div style={{fontWeight:700,fontSize:13}}>{req.stud.fn} {req.stud.ln}</div><div style={{fontSize:12,color:'var(--g600)',marginTop:3,lineHeight:1.5}}>{req.msg}</div><div style={{fontSize:11,color:'var(--g400)',marginTop:3}}>{req.date}</div></div>
+        <div style={{display:'flex',gap:6,flexShrink:0}}>
+          <button className="btn btn-xs" style={{background:'#f0fdf4',color:'#15803d',border:'1px solid #bbf7d0'}} onClick={()=>act(req.stud.id,req.id,'approved')}><Ico n="check" s={11}/>Approve</button>
+          <button className="btn btn-xs btn-d" onClick={()=>act(req.stud.id,req.id,'rejected')}>Reject</button>
+        </div>
+      </div>;})}
+    </div></>}
+    {past.length>0&&<><div style={{fontWeight:700,color:'var(--g600)',marginBottom:10,fontSize:13}}>Past Requests ({past.length})</div>
+    <div className="card">{past.map(req=><div key={req.id} style={{padding:'10px 0',borderBottom:'1px solid var(--g100)',display:'flex',gap:10,alignItems:'center'}}>
+      <span className={`badge ${req.status==='approved'?'bgr':'br'}`}>{req.status}</span>
+      <div style={{flex:1}}><span style={{fontWeight:600,fontSize:12}}>{req.stud.fn} {req.stud.ln}</span><span style={{fontSize:12,color:'var(--g600)',marginLeft:8}}>{req.msg.length>70?req.msg.slice(0,70)+'…':req.msg}</span></div>
+      <span style={{fontSize:11,color:'var(--g400)'}}>{req.date}</span>
+    </div>)}</div></>}
+  </>;
+}
+
+// ── ROOT APP ──
+function App(){
+  const [data,setData]=useState(SEED);
+  const [session,setSession]=useState(null);
+  const [authMode,setAuthMode]=useState(null);
+  const [toast,setToast]=useState(null);
+  const showToast=(msg,type='success')=>setToast({msg,type,k:Date.now()});
+  const logout=()=>{setSession(null);setAuthMode(null);};
+  const login=raw=>{
+    if(raw.role==='admin'){setSession({...raw,step:'portal'});setAuthMode(null);return;}
+    const latest=data.students.find(s=>s.id===raw.user.id)||raw.user;
+    const step=!latest.appDone?'application':!latest.secId?'section':'portal';
+    setSession({...raw,user:latest,step});setAuthMode(null);
+  };
+  const updateStep=(upd,next)=>setSession(prev=>({...prev,user:upd,step:next}));
+  const latestStudent=session?.role==='student'?data.students.find(s=>s.id===session.user.id):null;
+
+  if(!session&&!authMode)return <><Landing onPortal={m=>setAuthMode(m)}/>{toast&&<Toast key={toast.k} {...toast} onClose={()=>setToast(null)}/>}</>;
+  if(authMode)return <><AuthPage mode={authMode} data={data} onData={setData} onSuccess={login} onSwitch={setAuthMode} onBack={()=>setAuthMode(null)}/>{toast&&<Toast key={toast.k} {...toast} onClose={()=>setToast(null)}/>}</>;
+  if(session?.role==='admin')return <><AdminShell session={session} data={data} onData={setData} onLogout={logout} showToast={showToast}/>{toast&&<Toast key={toast.k} {...toast} onClose={()=>setToast(null)}/>}</>;
+  if(session?.role==='student'){
+    const s=latestStudent||session.user;
+    const step=!s.appDone?'application':!s.secId?'section':'portal';
+    if(step==='application')return <><AppForm student={s} data={data} onData={setData} showToast={showToast} onDone={upd=>updateStep(upd,upd.secId?'portal':'section')}/>{toast&&<Toast key={toast.k} {...toast} onClose={()=>setToast(null)}/>}</>;
+    if(step==='section')return <><SecSelect student={s} data={data} onData={setData} showToast={showToast} onDone={upd=>updateStep(upd,'portal')}/>{toast&&<Toast key={toast.k} {...toast} onClose={()=>setToast(null)}/>}</>;
+    return <><StudentShell session={{...session,user:s}} data={data} onData={setData} onLogout={logout} showToast={showToast}/>{toast&&<Toast key={toast.k} {...toast} onClose={()=>setToast(null)}/>}</>;
+  }
+  return null;
+}
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+</script>
+</body>
+</html>
+
+
+
+
